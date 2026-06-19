@@ -1433,7 +1433,7 @@ html[dir="ltr"] .sidebar-nav .nav-list li .nav-link .nav-label {
     }
 
    .sidhedar {
-    height: calc(65dvh - 100px) !important; /* تم تقليل الطول إلى 65% لترتفع أكثر */
+    height: calc(75dvh - 100px) !important; /* تم تقليل الطول إلى 65% لترتفع أكثر */
     border-bottom-left-radius: 25px;
     width: 400px !important; 
     max-width: 100vw !important; 
