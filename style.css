@@ -1412,7 +1412,15 @@ html[dir="ltr"] .sidebar-nav .nav-list li .nav-link .nav-label {
    2. التعديل الجذري والنهائي للموبايل (يتوافق مع شاشة 980 بيكسل)
 ======================================================= */
 @media screen and (max-width: 980px) {
-    
+   
+   .special-page-container {
+    padding-left: 85px !important; /* هذا السطر يمنع زق المحتوى تماماً في الموبايل */
+}
+    .main-footer {
+    width: 100vw !important; /* إجبار الفوتر على أخذ عرض الشاشة كاملاً */
+    margin-left: -85px !important; /* سحب الفوتر لليسار ليلغي مساحة القائمة المقفولة */
+    padding-left: 115px !important; /* إضافة مسافة داخلية لكي لا يلتصق الكلام بالحافة */
+}
     /* 1. إصلاح طول الشاشة ومنع الفراغ السفلي */
     body, html {
         height: auto !important;
@@ -1425,9 +1433,8 @@ html[dir="ltr"] .sidebar-nav .nav-list li .nav-link .nav-label {
     }
 
    .sidhedar {
-    height: calc(80dvh - 100px) !important; /* هيقلل الطول ويرفعها لفوق */
-    border-bottom-left-radius: 25px; /* عشان تعمل كيرف شيك من تحت */
-    /* باقي أكوادك كما هي */
+    height: calc(65dvh - 100px) !important; /* تم تقليل الطول إلى 65% لترتفع أكثر */
+    border-bottom-left-radius: 25px;
     width: 400px !important; 
     max-width: 100vw !important; 
     z-index: 10000 !important; 
@@ -1832,5 +1839,11 @@ body.dark-theme #paymentStudentForm input {
         max-width: 950px !important; /* حددنا العرض المناسب جداً للنبذة والجدول والشعب */
         margin-left: auto !important; /* بيجبر المحتوى يلزق في الشمال جنب القائمة الجانبية */
         margin-right: 0 !important; /* بيزق كل الفراغ الزيادة ناحية اليمين */
+    }
+}
+
+@media screen and (min-width: 981px) {
+    .main-footer {
+        margin-top: 600px !important; /* هذه هي المساحة الكبيرة بين الأخبار والفوتر في الكمبيوتر */
     }
 }
