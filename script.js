@@ -1098,11 +1098,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // 1. فتح شاشة الدفع من القائمة الجانبية
     if(payFeesBtn) {
-        payFeesBtn.addEventListener('click', function(e) {
-            e.preventDefault();
-            
-            // إخفاء الصفحة الرئيسية
-            const mainContent = document.querySelector('.main-content');
+    payFeesBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation(); // <--- هذا هو السطر السحري الذي يمنع القائمة من إعادة فتح نفسها
+
+        // إخفاء الصفحة الرئيسية
+        const mainContent = document.querySelector('.main-content');
             if(mainContent) mainContent.classList.add('fade-out-main');
             
             // إغلاق كل الصفحات الخاصة الأخرى
