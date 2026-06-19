@@ -1425,7 +1425,7 @@ html[dir="ltr"] .sidebar-nav .nav-list li .nav-link .nav-label {
     }
 
    .sidhedar {
-    height: calc(100dvh - 100px) !important; /* هيقلل الطول ويرفعها لفوق */
+    height: calc(80dvh - 100px) !important; /* هيقلل الطول ويرفعها لفوق */
     border-bottom-left-radius: 25px; /* عشان تعمل كيرف شيك من تحت */
     /* باقي أكوادك كما هي */
     width: 400px !important; 
