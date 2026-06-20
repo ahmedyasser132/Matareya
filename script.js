@@ -720,69 +720,63 @@ setTimeout(() => {
 
 // ================= دالة الرجوع للصفحة الرئيسية بأنيميشن البلع =================
 function returnToHome() {
-    const specialPage = document.getElementById('instituteSpecialPage');
-    const registrationFormPage = document.getElementById('registrationFormPage');
     const mainContent = document.querySelector('.main-content');
     const movedBtn = document.getElementById('movedButton');
-    // (ضيف السطور دي جوة دالة returnToHome())
-    const paymentSpecialPage = document.getElementById('paymentSpecialPage');
-    if(paymentSpecialPage) {
-        paymentSpecialPage.classList.remove('active-page');
-        document.getElementById('paymentMainTitle').style.display = 'block';
-        document.getElementById('paymentMainTitle').style.opacity = '1';
-        
-        document.querySelectorAll('.pay-inst-btn').forEach(btn => {
-            btn.classList.remove('hidden-inst', 'selected-pay-inst');
-        });
-        
+    const siteSearchInput = document.getElementById('siteSearchInput');
+
+    // 1. إخفاء أي صفحة فرعية شغالة حالياً (مهما كانت هي إيه)
+    document.querySelectorAll('.special-page-container').forEach(function(page) {
+        page.classList.remove('active-page');
+        page.style.display = 'none';
+    });
+
+    // 2. تصفير صفحة دفع المصاريف (لو كانت هي اللي مفتوحة)
+    const paymentMainTitle = document.getElementById('paymentMainTitle');
+    if (paymentMainTitle) {
+        paymentMainTitle.style.display = 'block';
+        paymentMainTitle.style.opacity = '1';
+        document.querySelectorAll('.pay-inst-btn').forEach(btn => btn.classList.remove('hidden-inst', 'selected-pay-inst'));
         document.getElementById('paymentYearSection').classList.remove('show-block');
         document.getElementById('paymentFormSection').classList.remove('show-block');
         document.querySelectorAll('.pay-year-btn').forEach(b => b.classList.remove('active-water'));
-        
         document.getElementById('fawryResultBox').style.display = 'none';
         const pForm = document.getElementById('paymentStudentForm');
         if(pForm) pForm.reset();
     }
-    // إخفاء صفحة المعهد الخاصة
-    if(specialPage) {
-        specialPage.classList.remove('active-page');
-        specialPage.style.display = ''; // العودة للوضع الافتراضي
-    }
 
-    // إخفاء صفحة الاستمارة (التعديل المطلوب لضمان عدم تداخل الصفحات)
-    if(registrationFormPage) {
-        registrationFormPage.classList.remove('active-page');
-        registrationFormPage.style.display = 'none';
-    }
-
-    // إظهار المحتوى الرئيسي مجدداً
-    if(mainContent) {
-        mainContent.classList.remove('fade-out-main');
-        mainContent.style.display = 'flex'; // إرجاع الواجهة الرئيسية للعمل
-    }
-
-    if(movedBtn) movedBtn.classList.remove('fly-top-right');
-
-    // مسح نص البحث عند العودة للرئيسية
-    const siteSearchInput = document.getElementById('siteSearchInput');
-    if(siteSearchInput) siteSearchInput.value = '';
-
-    // تصفير كل التحديدات داخل صفحة المعهد
+    // 3. تصفير صفحة المعهد (لو كانت هي اللي مفتوحة)
     const termsSection = document.getElementById('termsSection');
     const deptsSection = document.getElementById('deptsSection');
     const subjectsSection = document.getElementById('subjectsSection');
-    
     if(termsSection) termsSection.classList.remove('show-block');
     if(deptsSection) deptsSection.classList.remove('show-block');
     if(subjectsSection) subjectsSection.classList.remove('show-block');
-    
     document.querySelectorAll('.water-btn').forEach(btn => btn.classList.remove('active-water'));
     document.querySelectorAll('.dept-btn').forEach(btn => btn.classList.remove('selected-dept'));
-    
     selectedYear = null;
     selectedTerm = null;
 
-    // تشغيل أنيميشن "البلع" باتجاه اليمين للمسارات الفرعية فقط
+    // 4. تصفير صفحة إثبات القيد (لو كانت هي اللي مفتوحة)
+    const enrollmentCertForm = document.getElementById('enrollmentCertForm');
+    if(enrollmentCertForm) {
+        enrollmentCertForm.reset();
+        const inputs = enrollmentCertForm.querySelectorAll('input, select');
+        inputs.forEach(input => input.disabled = false);
+        document.getElementById('saveCertBtn').style.display = 'flex';
+        document.getElementById('certSuccessMessage').style.display = 'none';
+        document.getElementById('printCertActionBtn').style.display = 'none';
+    }
+
+    // 5. إظهار المحتوى الرئيسي مجدداً
+    if(mainContent) {
+        mainContent.classList.remove('fade-out-main');
+        mainContent.style.display = 'flex'; 
+    }
+
+    if(movedBtn) movedBtn.classList.remove('fly-top-right');
+    if(siteSearchInput) siteSearchInput.value = '';
+
+    // 6. أنيميشن البلع لمسارات التنقل
     const items = document.getElementById('breadcrumbContainer').querySelectorAll('.breadcrumb-item, .breadcrumb-separator');
     items.forEach((el, index) => {
         if (index > 0) {
@@ -790,7 +784,6 @@ function returnToHome() {
         }
     });
 
-    // تحديث مصفوفة المسارات بعد انتهاء تأثير الأنيميشن
     setTimeout(() => {
         currentPath = [{ id: 'home', title: 'الصفحة الرئيسية' }];
         renderBreadcrumbs();
@@ -1213,6 +1206,478 @@ payInstBtns.forEach(btn => {
                 // النزول بالشاشة لرؤية الكود براحة
                 fawryResultBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }, 1500);
+        });
+    }
+});
+
+
+
+  // =========================================================================
+// 9. برمجة صفحة إثبات القيد (تحديث وتصحيح الكود بالكامل)
+// =========================================================================
+
+document.addEventListener('DOMContentLoaded', function() {
+    const enrollmentCertBtn = document.getElementById('enrollmentCertBtn');
+    const enrollmentCertSection = document.getElementById('enrollmentCertSection');
+    const enrollmentCertForm = document.getElementById('enrollmentCertForm');
+    const printCertActionBtn = document.getElementById('printCertActionBtn');
+    const certSuccessMessage = document.getElementById('certSuccessMessage');
+    
+    const certInputInst = document.getElementById('certInputInst');
+    const certInputYear = document.getElementById('certInputYear');
+    const certInputDept = document.getElementById('certInputDept');
+
+    // قاعدة بيانات الشعب لكل معهد لتغذية القوائم ديناميكياً
+    const certInstitutesData = {
+        "المعهد الفنى الصناعى بالمطريه": {
+            years: ["الفرقة الأولى", "الفرقة الثانية"],
+            depts: ["تشغيل وتشكيل المعادن", "سيارات", "شبكات وآلات كهربية", "تكنولوجيا معلومات", "عمارة", "مدني", "تبريد وتكييف", "أجهزة إلكترونية"]
+        },
+        "المعهد الفنى التجارى بالمطريه": {
+            years: ["الفرقة الأولى", "الفرقة الثانية"],
+            depts: ["شعبة عامة", "شعبة تسويق وسوق مال", "شعبة نظم معلومات", "شعبة محاسبة ومراجعة"]
+        },
+        "المعهد الفنى الصناعى بشبرا": {
+            years: ["الفرقة الأولى", "الفرقة الثانية"],
+            depts: ["تشغيل معادن", "تشكيل معادن", "شبكات قوى كهربية", "الات كهربية", "الكترونيات سيارات", "ميكانيكا سيارات"]
+        },
+        "المعهد الفنى التجارى بشبرا": {
+            years: ["الفرقة الأولى", "الفرقة الثانية"],
+            depts: ["شعبة عامة", "شعبة ضرائب", "شعبة سكرتارية تنفيذية", "شعبة إدارة مكاتب"]
+        },
+        "المعهد الفنى للسياحه والفنادق بالمطريه": {
+            years: ["الفرقة الأولى", "الفرقة الثانية"],
+            depts: ["شعبة فنادق", "شعبة سياحة", "شعبة مطاعم", "إرشاد سياحي"]
+        },
+        "المعهد الفنى للرى والصرف والمساحه بالمطريه": {
+            years: ["الفرقة الأولى", "الفرقة الثانية"],
+            depts: ["شعبة ري وصرف", "شعبة مساحة عامة"]
+        }
+    };
+
+    // 1. عند الضغط على خانة إثبات القيد من القائمة الجانبية
+    if (enrollmentCertBtn) {
+        enrollmentCertBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation(); 
+            
+            // إغلاق القائمة الجانبية بالكامل وحل مشكلة التعليق
+            const sidebar = document.querySelector('.sidhedar');
+            if (sidebar) {
+                sidebar.classList.add('sidebar-collapsed', 'disable-hover');
+                setTimeout(() => sidebar.classList.remove('disable-hover'), 1000);
+            }
+            
+            // إغلاق أي قوائم منسدلة داخلية مفتوحة
+            document.querySelectorAll('.dropdown-container.open').forEach(d => {
+                d.classList.remove('open');
+                const menu = d.querySelector(".dropdown-menu");
+                if (menu) menu.style.height = "0px";
+            });
+            
+            // إلغاء تأثير اللمس أو الماوس المعلق
+            document.querySelectorAll('.nav-item.touch-hover').forEach(i => i.classList.remove('touch-hover'));
+            
+            // إخفاء باقي صفحات الموقع وإظهار صفحة إثبات القيد
+            const mainContent = document.querySelector('.main-content');
+            if (mainContent) mainContent.classList.add('fade-out-main');
+            
+            document.querySelectorAll('.special-page-container').forEach(page => {
+                page.classList.remove('active-page');
+                page.style.display = 'none';
+            });
+            
+            if (enrollmentCertSection) {
+                enrollmentCertSection.style.display = 'block';
+                setTimeout(() => {
+                    enrollmentCertSection.classList.add('active-page');
+                    enrollmentCertSection.style.opacity = '1';
+                }, 50);
+            }
+            
+            // تحديث مسار التنقل (Breadcrumbs)
+            if (typeof currentPath !== 'undefined') {
+                currentPath = [
+                    { id: 'home', title: 'الصفحة الرئيسية' },
+                    { id: 'enrollment_cert', title: 'إثبات قيد' }
+                ];
+                renderBreadcrumbs();
+            }
+        });
+    }
+
+    // 2. تفعيل اختيار المعهد والديناميكية لفك قفل الفرقة والشعبة
+    if (certInputInst) {
+        certInputInst.addEventListener('change', function() {
+            const selectedInst = this.value;
+            const data = certInstitutesData[selectedInst];
+
+            if (data) {
+                // تفعيل القوائم وإزالة القفل (disabled) عنها
+                certInputYear.disabled = false;
+                certInputYear.style.cursor = "default";
+                certInputDept.disabled = false;
+                certInputDept.style.cursor = "default";
+
+                // تغذية قائمة الفرق الدراسية
+                certInputYear.innerHTML = '<option value="" disabled selected>2. اختر الفرقة...</option>';
+                data.years.forEach(year => {
+                    certInputYear.innerHTML += `<option value="${year}">${year}</option>`;
+                });
+
+                // تغذية قائمة الشعب والتخصصات
+                certInputDept.innerHTML = '<option value="" disabled selected>3. اختر الشعبة...</option>';
+                data.depts.forEach(dept => {
+                    certInputDept.innerHTML += `<option value="${dept}">${dept}</option>`;
+                });
+            }
+        });
+    }
+
+    // 3. كود السsubmit للفورم (نقل البيانات من المدخلات إلى ورقة الطباعة)
+    if (enrollmentCertForm) {
+        enrollmentCertForm.addEventListener('submit', function(e) {
+            e.preventDefault(); // منع الفورم من تحديث الصفحة وضياع البيانات
+
+            // جلب القيم المكتوبة داخل الفورم
+            const nameValue = document.getElementById('certInputName').value;
+            const nidValue = document.getElementById('certInputNID').value;
+            const codeValue = document.getElementById('certInputCode').value;
+            const instValue = document.getElementById('certInputInst').value;
+            const yearValue = document.getElementById('certInputYear').value;
+            const deptValue = document.getElementById('certInputDept').value;
+            const statusValue = document.getElementById('certInputStatus').value;
+            const academicYearValue = document.getElementById('certInputAcademicYear').value;
+
+            // ضخ وترحيل البيانات داخل عناصر ورقة الطباعة الفاضية المجهزة
+            document.getElementById('printHeaderInstName').innerText = instValue;
+            document.getElementById('printHeaderInstNameEng').innerText = instValue; // علشان الإنجليزي يتغير مؤقتاً
+            document.getElementById('printBodyStuName').innerText = nameValue;
+            document.getElementById('printBodyInstName').innerText = instValue;
+            document.getElementById('printBodyYear').innerText = yearValue;
+            document.getElementById('printBodyDept').innerText = deptValue;
+            document.getElementById('printBodyStatus').innerText = statusValue;
+
+            // تحديث كلاس السنة الدراسية لأنها مكررة
+            document.querySelectorAll('.cert-academic-year').forEach(el => {
+                el.innerText = academicYearValue;
+            });
+
+            // ===============================================================
+            // الكود الخاص بك: توليد التاريخ والـ QR Code والباركود لحظة التسجيل
+            // ===============================================================
+            const now = new Date();
+            const dateString = now.toLocaleDateString('ar-EG'); 
+            const timeString = now.toLocaleTimeString('ar-EG');
+            const fullDateTime = dateString + ' - ' + timeString;
+
+            // كتابة التاريخ في خانة تحرير الوثيقة
+            if(document.getElementById('printDocDate')) {
+                document.getElementById('printDocDate').textContent = dateString;
+            }
+
+            // توليد QR Code يحتوي على اسم الطالب ووقت التسجيل الفعلي
+            const qrContainer = document.getElementById('certQrContainer');
+            if(qrContainer) {
+                const qrDataUrl = `https://api.qrserver.com/v1/create-qr-code/?size=80x80&data=${encodeURIComponent("إثبات قيد - " + nameValue + " - " + fullDateTime)}`;
+                qrContainer.innerHTML = `<img src="${qrDataUrl}" alt="QR" style="width:100%; height:100%;">`;
+            }
+
+            // توليد الباركود الطولي برقم 124112168 باستخدام مكتبة مجانية مباشرة
+            const certBarcode = document.getElementById('certBarcodeImg');
+            if (certBarcode) {
+                certBarcode.src = `https://bwipjs-api.metafloor.com/?bcid=code128&text=124112168&scale=2&includetext`;
+            }
+            // ===============================================================
+
+            // إخفاء زرار الحفظ وإظهار رسالة النجاح وزرار الطباعة الأزرق
+            document.getElementById('saveCertBtn').style.display = 'none';
+            if (certSuccessMessage) certSuccessMessage.style.display = 'block';
+            if (printCertActionBtn) {
+                printCertActionBtn.style.display = 'flex';
+                // سكرول تلقائي لأسفل ليرى الطالب زر الطباعة
+                printCertActionBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        });
+    }
+    // 4. كود زرار الطباعة الفوري عند الضغط عليه
+   // 4. كود زرار الطباعة الفوري عند الضغط عليه
+    if (printCertActionBtn) {
+        printCertActionBtn.addEventListener('click', function() {
+            // بنضيف كلاس للـ body علشان الـ CSS يعرف إننا بنطبع الإثبات بس
+            document.body.classList.add('mode-print-cert');
+            
+            // ننتظر 100 مللي ثانية بس علشان ندي فرصة للمتصفح يرسم الورقة
+            setTimeout(() => {
+                window.print();
+            }, 100);
+        });
+    }
+
+    // إزالة الكلاس بأمان تام بعد إغلاق نافذة الطباعة
+    window.addEventListener('afterprint', function() {
+        document.body.classList.remove('mode-print-cert');
+    });
+    });
+
+    // ================= كود استخراج إثبات القيد وتوليد الباركود =================
+
+// 1. قاموس لترجمة أسماء المعاهد للإنجليزي عشان اللوجو اللي على الشمال
+// ================= كود استخراج إثبات القيد وتوليد الباركود المطور (بدون تكرار) =================
+
+const englishInstitutesList = {
+    "المعهد الفنى الصناعى بالمطريه": "Industrial Technical Institute",
+    "المعهد الفنى التجارى بالمطريه": "Commercial Technical Institute",
+    "المعهد الفنى الصناعى بشبرا": "Shubra Industrial Technical Institute",
+    "المعهد الفنى التجارى بشبرا": "Shubra Commercial Technical Institute",
+    "المعهد الفنى للسياحه والفنادق بالمطريه": "Tourism & Hotels Technical Institute",
+    "المعهد الفنى للرى والصرف والمساحه بالمطريه": "Irrigation & Surveying Technical Institute"
+};
+
+const enrollmentFormElement = document.getElementById('enrollmentCertForm');
+if(enrollmentFormElement) {
+    // إزالة أي مستمع أحداث قديم لضمان عدم التداخل
+    enrollmentFormElement.onsubmit = function(e) {
+        e.preventDefault();
+
+        // سحب البيانات المسجلة من الخانات
+        const studentNameVal = document.getElementById('certInputName').value;
+        const instituteSelect = document.getElementById('certInputInst');
+        const instituteArName = instituteSelect.options[instituteSelect.selectedIndex].text;
+        const instituteKey = instituteSelect.value;
+        const instituteEnName = englishInstitutesList[instituteKey] || "Technical Institute";
+        
+        const yearSelectElement = document.getElementById('certInputYear');
+        const studentYearName = yearSelectElement.options[yearSelectElement.selectedIndex]?.text || "";
+        
+        const deptSelectElement = document.getElementById('certInputDept');
+        const studentDeptName = deptSelectElement.options[deptSelectElement.selectedIndex]?.text || "";
+        
+        const studentStatusVal = document.getElementById('certInputStatus').value;
+        const currentAcademicYear = document.getElementById('certInputAcademicYear').value;
+
+        // توليد وقت وتاريخ التسجيل الفعلي بدقة
+        const currentTimestamp = new Date();
+        const dateFormatted = currentTimestamp.toLocaleDateString('ar-EG');
+        const timeFormatted = currentTimestamp.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+        const finalRegistrationDateTime = `${dateFormatted} (الساعة ${timeFormatted})`;
+
+        // زراعة البيانات ديناميكياً داخل البلوك الخاص بالطباعة
+        document.getElementById('printHeaderInstName').textContent = instituteArName;
+        document.getElementById('printHeaderInstNameEng').textContent = instituteEnName;
+        
+        document.getElementById('printBodyStuName').textContent = studentNameVal;
+        document.getElementById('printBodyInstName').textContent = instituteArName;
+        document.getElementById('printBodyYear').textContent = studentYearName;
+        document.getElementById('printBodyDept').textContent = studentDeptName;
+        document.getElementById('printBodyStatus').textContent = studentStatusVal;
+        
+        document.querySelectorAll('.cert-academic-year').forEach(element => {
+            element.textContent = currentAcademicYear;
+        });
+
+        // حقن تاريخ تحرير الوثيقة في مكانه المحدد
+        document.getElementById('printDocDate').textContent = finalRegistrationDateTime;
+
+        // توليد باركود الـ QR المربع (يحتوي على البيانات والوقت لحمايتها من التزوير)
+        const qrContentEncoded = encodeURIComponent(`الطالب: ${studentNameVal}\nالمعهد: ${instituteArName}\nالتاريخ: ${finalRegistrationDateTime}`);
+        document.getElementById('certBarcodeImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${qrContentEncoded}`;
+
+        // إخفاء زر الحفظ وإظهار رسالة النجاح وزر الطباعة
+        document.getElementById('saveCertBtn').style.display = 'none';
+        const successMsg = document.getElementById('certSuccessMessage');
+        if(successMsg) successMsg.style.display = 'block';
+        
+        const actionPrintBtn = document.getElementById('printCertActionBtn');
+        if(actionPrintBtn) {
+            actionPrintBtn.style.display = 'flex';
+            actionPrintBtn.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    };
+}
+
+// تشغيل أمر الطباعة النظيف لمرة واحدة فقط دون تكرار الباغ
+const finalPrintActionBtn = document.getElementById('printCertActionBtn');
+if(finalPrintActionBtn) {
+    finalPrintActionBtn.onclick = function() {
+        // إضافة كلاس وضع الطباعة على جسم الصفحة لتهيئة الـ CSS
+        document.body.classList.add('mode-print-cert');
+        
+        // مهلة زمنية قصيرة جداً لضمان استقرار العناصر والباركود في الصفحة قبل فتح النافذة
+        setTimeout(() => {
+            window.print();
+            // إزالة الكلاس فوراً بعد إغلاق نافذة الطباعة أو إلغائها ليعود الموقع لشغله الطبيعي
+            document.body.classList.remove('mode-print-cert');
+        }, 250);
+    };
+}
+// ================= كود تشغيل إثبات القيد الفورية =================
+document.addEventListener('DOMContentLoaded', function() {
+    const enrollmentCertForm = document.getElementById('enrollmentCertForm');
+    const certSuccessMessage = document.getElementById('certSuccessMessage');
+    const printCertActionBtn = document.getElementById('printCertActionBtn');
+
+    // 1. عند الضغط على حفظ واعتماد البيانات
+    if(enrollmentCertForm) {
+        enrollmentCertForm.addEventListener('submit', function(e) {
+            e.preventDefault(); // نمنع الصفحة تعمل ريفريش
+
+            // هنا بناخد البيانات اللي الطالب كتبها ونحطها في ورقة الطباعة
+            document.getElementById('printBodyStuName').textContent = document.getElementById('certInputName').value;
+            
+            const instSelect = document.getElementById('certInputInst');
+            document.getElementById('printBodyInstName').textContent = instSelect.options[instSelect.selectedIndex].text;
+            
+            const statusSelect = document.getElementById('certInputStatus');
+            document.getElementById('printBodyStatus').textContent = statusSelect.options[statusSelect.selectedIndex].text;
+
+            // إظهار رسالة النجاح التحذيرية وزر الطباعة الجديد
+            certSuccessMessage.classList.remove('hidden-block');
+            certSuccessMessage.style.display = 'block';
+            printCertActionBtn.style.display = 'flex';
+        });
+    }
+
+    // 2. عند الضغط على زر طباعة إثبات القيد الفورية
+    if(printCertActionBtn) {
+        printCertActionBtn.addEventListener('click', function() {
+            // إخفاء الاستمارة القديمة (الـ 3 ورقات) برمجياً عشان متظهرش
+            const oldPrintArea = document.getElementById('printArea');
+            if(oldPrintArea) oldPrintArea.style.display = 'none';
+
+            // التأكد من إظهار إثبات القيد
+            const certPrintArea = document.getElementById('printCertArea');
+            if(certPrintArea) certPrintArea.style.display = 'block';
+
+            // تنفيذ أمر الطباعة المباشر
+            window.print();
+
+            // إرجاع الاستمارة القديمة لوضعها المخفي الطبيعي بعد الطباعة
+            if(oldPrintArea) oldPrintArea.style.display = '';
+        });
+    }
+});
+
+// =========================================================================
+// نظام إثبات القيد (نقل البيانات وحل مشكلة الطباعة المتكررة)
+// =========================================================================
+document.addEventListener('DOMContentLoaded', function() {
+    const enrollmentCertForm = document.getElementById('enrollmentCertForm');
+    const saveCertBtn = document.getElementById('saveCertBtn');
+    const printCertActionBtn = document.getElementById('printCertActionBtn');
+    const certSuccessMessage = document.getElementById('certSuccessMessage');
+
+    // 1. أمر الطباعة: معزول تماماً ومستقل ليعمل مرة واحدة فقط عند الضغط
+    if (printCertActionBtn) {
+        // إزالة أي تكرار سابق للزر كإجراء احترازي
+        const newPrintBtn = printCertActionBtn.cloneNode(true);
+        printCertActionBtn.parentNode.replaceChild(newPrintBtn, printCertActionBtn);
+        
+        newPrintBtn.addEventListener('click', function() {
+            window.print();
+        });
+    }
+
+    // 2. أمر الحفظ ونقل البيانات من الخانات إلى ورقة الطباعة
+    if (enrollmentCertForm) {
+        enrollmentCertForm.addEventListener('submit', function(e) {
+            e.preventDefault(); // منع إعادة تحميل الصفحة
+
+            // جلب القيم التي أدخلها الطالب
+            const nameVal = document.getElementById('certInputName').value;
+            const instVal = document.getElementById('certInputInst').value;
+            const yearVal = document.getElementById('certInputYear').value;
+            const deptVal = document.getElementById('certInputDept').value;
+            const statusVal = document.getElementById('certInputStatus').value;
+
+            // زرع القيم في الورقة المخفية المخصصة للطباعة
+            if(document.getElementById('printBodyStuName')) document.getElementById('printBodyStuName').textContent = nameVal;
+            if(document.getElementById('printBodyInstName')) document.getElementById('printBodyInstName').textContent = instVal;
+            if(document.getElementById('printHeaderInstName')) document.getElementById('printHeaderInstName').textContent = instVal;
+            if(document.getElementById('printBodyYear')) document.getElementById('printBodyYear').textContent = yearVal;
+            if(document.getElementById('printBodyDept')) document.getElementById('printBodyDept').textContent = deptVal;
+            if(document.getElementById('printBodyStatus')) document.getElementById('printBodyStatus').textContent = statusVal;
+
+            // طباعة تاريخ اليوم تلقائياً
+            const today = new Date();
+            if(document.getElementById('printDocDate')) {
+                document.getElementById('printDocDate').textContent = today.toLocaleDateString('ar-EG');
+            }
+
+            // إخفاء زر الحفظ وإظهار زر الطباعة ورسالة النجاح
+            if(saveCertBtn) saveCertBtn.style.display = 'none';
+            if(certSuccessMessage) {
+                certSuccessMessage.classList.remove('hidden-block');
+                certSuccessMessage.style.display = 'block';
+            }
+            
+            // إظهار زر الطباعة المستقل الذي برمجناه في الخطوة الأولى
+            const finalPrintBtn = document.getElementById('printCertActionBtn');
+            if(finalPrintBtn) finalPrintBtn.style.display = 'flex';
+        });
+    }
+});
+
+// =========================================================================
+// التعديلات الجديدة: تثبيت التاريخ وتوليد QR Code حقيقي
+// =========================================================================
+
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // 1. كود وضع تاريخ اليوم تلقائياً في خانة "العام الدراسي" المغلقة
+    const dateInput = document.getElementById('certInputAcademicYear');
+    if (dateInput) {
+        const today = new Date();
+        // تنسيق التاريخ ليظهر بالشكل (يوم/شهر/سنة)
+        const dateString = today.toLocaleDateString('en-GB'); 
+        dateInput.value = dateString; // وضع التاريخ في الخانة
+    }
+
+    // 2. كود توليد الـ QR Code عند الضغط على زر "حفظ واعتماد البيانات"
+    const enrollForm = document.getElementById('enrollmentCertForm');
+    
+    if (enrollForm) {
+        enrollForm.addEventListener('submit', function(e) {
+            e.preventDefault(); // إيقاف إعادة تحميل الصفحة الافتراضي
+
+            // سحب البيانات اللي الطالب كتبها عشان نحطها جوه الـ QR Code
+            const studentCode = document.getElementById('certInputCode').value; // كود الطالب
+            const studentNID = document.getElementById('certInputNID').value;   // الرقم القومي
+            
+            // سحب تاريخ اليوم والوقت الحالي لحظة ضغط الزر
+            const now = new Date();
+            const printDate = now.toLocaleDateString('ar-EG'); // التاريخ
+            const printTime = now.toLocaleTimeString('ar-EG'); // الوقت
+            const fullDateTime = `${printDate} - ${printTime}`;
+
+            // =====================================================
+            // تجهيز النص اللي هيظهر للموبايل لما حد يعمل Scan للـ QR Code
+            // (هنا دمجنا رقم الطالب مع تاريخ ووقت التسجيل والطباعة زي ما طلبت)
+            // =====================================================
+            const qrContent = `رقم الطالب: ${studentCode} \nتاريخ التسجيل والطباعة: ${fullDateTime}`;
+
+            // استخدام أداة (API) مجانية وموثوقة لتحويل النص لـ QR Code مربع (متاهة)
+            // نستخدم encodeURIComponent لضمان عدم وجود مشكلة في المسافات أو الحروف العربية
+            const qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&margin=10&data=${encodeURIComponent(qrContent)}`;
+
+            // الوصول لصورة الـ QR في صفحة الطباعة وتغييرها للصورة الحقيقية الجديدة
+            const certBarcodeImg = document.getElementById('certBarcodeImg');
+            if (certBarcodeImg) {
+                certBarcodeImg.src = qrApiUrl;
+            }
+
+            // =====================================================
+            // باقي خطوات إظهار رسالة النجاح وزر الطباعة
+            // =====================================================
+            document.getElementById('certSuccessMessage').classList.remove('hidden-block');
+            document.getElementById('saveCertBtn').style.display = 'none'; // إخفاء زر الحفظ
+            document.getElementById('printCertActionBtn').style.display = 'flex'; // إظهار زر الطباعة
+
+            // تعبئة بعض البيانات في ورقة الطباعة كإجراء إضافي للتأكيد
+            const docDateElement = document.getElementById('printDocDate');
+            if(docDateElement) {
+                docDateElement.innerText = fullDateTime; // وضع وقت الطباعة في الورقة المطبوعة أسفل
+            }
         });
     }
 });
