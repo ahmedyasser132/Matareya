@@ -76,7 +76,12 @@
         <span class="nav-label" data-i18n="get_form">استخراج الاستمارة</span>
     </a>
 </li>
-<li class="nav-item"><a href="#" class="nav-link" data-i18n="enrollment_cert">إثبات قيد</a></li>
+<li class="nav-item">
+    <a href="#" class="nav-link" id="enrollmentCertBtn">
+        <i class="fa-solid fa-id-badge" style="font-size: 18px; margin-left: 10px;"></i>
+        <span class="nav-label" data-i18n="enrollment_cert">إثبات قيد</span>
+    </a>
+</li>
                             <li class="nav-item"><a href="#" class="nav-link" data-i18n="metro_form">استمارة المترو</a></li>
                             <li class="nav-item"><a href="#" class="nav-link" data-i18n="institute_card">كارنيه المعهد</a></li>
                             <li class="nav-item"><a href="#" class="nav-link" data-i18n="materials_cd">اسطوانة المواد</a></li>
@@ -347,6 +352,7 @@
                     </div>
                 </div>
             </footer>
+            
         </main>
     </div>
     
@@ -607,6 +613,295 @@
     </button>
     
     <!-- ثم استدعِ الجافاسكريبت في النهاية تماماً -->
+        <!-- ==================== حاوية نظام إثبات القيد الإلكتروني (بنفس تصميم الاستمارة) ==================== -->
+<div id="enrollmentCertSection" class="special-page-container" style="display: none;">
+    <div class="form-container typing-container" style="margin: 100px auto 40px; max-width: 800px;">
+       <form id="enrollmentCertForm">
+    
+    <h3 style="color: #00f2fe; margin-bottom: 20px; border-bottom: 1px solid #00f2fe; padding-bottom: 10px;">البيانات الأساسية للطالب</h3>
+    
+    <div class="input-group">
+        <label style="color: #00f2fe; font-size: 16px; font-weight: bold;">الاسم الرباعي (كما بشهادة الميلاد)</label>
+        <input type="text" id="certInputName" required placeholder="أدخل اسمك الرباعي كاملاً">
+    </div>
+    
+    <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+        <div class="input-group" style="flex: 1; min-width: 200px;">
+            <label style="color: #00f2fe; font-size: 16px; font-weight: bold;">الرقم القومي (14 رقم)</label>
+            <input type="text" id="certInputNID" required maxlength="14" placeholder="أدخل 14 رقم">
+        </div>
+        <div class="input-group" style="flex: 1; min-width: 200px;">
+            <label style="color: #00f2fe; font-size: 16px; font-weight: bold;">كود الطالب</label>
+            <input type="number" id="certInputCode" required placeholder="أدخل الكود الخاص بك">
+        </div>
+    </div>
+
+  <h3 style="color: #00f2fe; margin-bottom: 20px; margin-top: 30px; border-bottom: 1px solid #00f2fe; padding-bottom: 10px;">بيانات القيد بالمعهد</h3>
+    
+    <div class="input-group">
+        <label style="color: #00f2fe; font-size: 16px; font-weight: bold;">اسم المعهد</label>
+        <select id="certInputInst" required>
+            <option value="" disabled selected>1. اختر المعهد أولاً...</option>
+            <option value="المعهد الفنى الصناعى بالمطريه">المعهد الفني الصناعي بالمطرية</option>
+            <option value="المعهد الفنى التجارى بالمطريه">المعهد الفني التجاري بالمطرية</option>
+            <option value="المعهد الفنى الصناعى بشبرا">المعهد الفني الصناعي بشبرا</option>
+            <option value="المعهد الفنى التجارى بشبرا">المعهد الفني التجاري بشبرا</option>
+            <option value="المعهد الفنى للسياحه والفنادق بالمطريه">المعهد الفني للسياحة والفنادق بالمطرية</option>
+            <option value="المعهد الفنى للرى والصرف والمساحه بالمطريه">المعهد الفني للري والصرف والمساحة بالمطرية</option>
+        </select>
+    </div>
+
+    <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+        <div class="input-group" style="flex: 1; min-width: 200px;">
+            <label style="color: #00f2fe; font-size: 16px; font-weight: bold;">الفرقة الدراسية</label>
+            <select id="certInputYear" required disabled style="cursor: not-allowed;">
+                <option value="" disabled selected>2. اختر الفرقة...</option>
+            </select>
+        </div>
+        <div class="input-group" style="flex: 1; min-width: 200px;">
+            <label style="color: #00f2fe; font-size: 16px; font-weight: bold;">الشعبة / التخصص</label>
+            <select id="certInputDept" required disabled style="cursor: not-allowed;">
+                <option value="" disabled selected>3. اختر الشعبة...</option>
+            </select>
+        </div>
+    </div>
+    
+    <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+        <div class="input-group" style="flex: 1; min-width: 200px;">
+    <label style="color: #00f2fe; font-size: 16px; font-weight: bold;">حالة الطالب</label>
+    <select id="certInputStatus" required>
+        <option value="" disabled selected>اختر الحالة...</option>
+        <option value="مستجد">مستجد</option>
+        <option value="باقي إعادة">باقي إعادة</option>
+    </select>
+</div>
+        <div class="input-group" style="flex: 1; min-width: 200px;">
+            <label style="color: #00f2fe; font-size: 16px; font-weight: bold;">العام الدراسي</label>
+           <input type="text" id="certInputAcademicYear" required readonly style="background-color: #e9ecef; cursor: not-allowed; font-weight: bold; text-align: center; color: #333;" placeholder="يتم تسجيل التاريخ تلقائياً">
+        </div>
+    </div>
+
+    <button type="submit" id="saveCertBtn" class="colorful-btn green-btn" style="width: 100%; max-width: 350px; height: 60px; margin: 30px auto 0; display: flex; flex-direction: row; justify-content: center; align-items: center; gap: 10px;">
+        <i class="fa-solid fa-save" style="font-size: 20px; margin-bottom: 0;"></i>
+        <span style="font-size: 16px;">حفظ واعتماد البيانات</span>
+    </button>
+
+    <button type="button" id="printCertActionBtn" class="colorful-btn" style="width: 100%; max-width: 350px; height: 60px; margin: 15px auto 0; display: none; background: #3498db; border-color: #3498db; flex-direction: row; justify-content: center; align-items: center; gap: 10px;">
+        <i class="fa-solid fa-print" style="font-size: 20px; margin-bottom: 0;"></i>
+        <span style="font-size: 16px;">طباعة إثبات القيد الفورية</span>
+    </button>
+</form>
+        
+        <div id="certSuccessMessage" class="hidden-block" style="text-align: center; color: #2ecc71; margin-top: 20px;">
+            <i class="fa-solid fa-circle-check" style="font-size: 40px; margin-bottom: 10px;"></i>
+            <p style="font-weight: bold; font-size: 18px;">تم حفظ بيانات الإثبات بنجاح! يرجى الطباعة الآن.</p>
+            <div style="margin-top: 15px; background: rgba(231, 76, 60, 0.1); border-right: 4px solid #e74c3c; padding: 10px; color: #e74c3c; text-align: right;">
+                <i class="fa-solid fa-triangle-exclamation"></i> <b>تنبيه هام:</b> يرجى التوجه بالورقة المطبوعة لشئون الطلاب لختمها واعتمادها.
+            </div>
+        </div>
+    </div>
+</div>
+<!-- ================= بداية قالب طباعة إثبات القيد الجديد (المعدل والمضغوط لصفحة واحدة) ================= -->
+<style>
+    /* 1. التعديلات السحرية لضمان الطباعة في ورقة واحدة وعدم ترحيل أي عنصر */
+    /* ========================================================= */
+    /* 1. التعديلات السحرية لضمان الطباعة في ورقة واحدة وعدم ترحيل أي عنصر */
+    /* ========================================================= */
+    @media print {
+        @page {
+            size: A4;
+            margin: 0mm; 
+        }
+        
+        body, html {
+            height: 100% !important; /* تم التعديل من vh إلى % */
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: hidden !important;
+            background: white !important;
+        }
+
+        /* هذا السطر مهم جداً: يقوم بإخفاء أي عنصر في الموقع ما عدا منطقة الطباعة لمنع ترحيل أي فراغ لورقة ثانية */
+        body > *:not(#printCertArea) {
+            display: none !important;
+        }
+
+        #printCertArea {
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important; 
+            margin: 0 !important;
+            padding: 20px !important; 
+            box-sizing: border-box !important;
+            overflow: hidden !important;
+            page-break-inside: avoid !important;
+            /* الأسطر الثلاثة القادمة هي السر لتثبيت التوقيعات بالأسفل */
+            display: flex !important;
+            flex-direction: column !important;
+        }
+        /* تصغير الباركود الطولي والمقاسات قليلاً لتوفير مساحة */
+        .cert-linear-barcode-container img {
+            height: 35px !important; 
+        }
+        .cert-paragraphs-holder p {
+            margin: 6px 0 !important; /* تقليل المسافات بين سطور البراجراف */
+        }
+        .cert-header-divider-line {
+            margin: 10px 0 !important;
+        }
+    }
+
+    /* ========================================================= */
+    /* 2. تنسيق السطر اللي بيجمع العنوان والـ Qr Code الجديد */
+    /* ========================================================= */
+    .cert-title-qr-wrapper {
+        display: flex;
+        justify-content: center; /* وضع العنوان في المنتصف تماماً */
+        align-items: center;
+        position: relative; /* علشان نثبت الـ QR على اليمين */
+        margin: 10px 0;
+    }
+    
+    .cert-title-qr-wrapper .cert-document-main-title {
+        margin: 0; 
+    }
+
+    .cert-title-qr-wrapper #certCenterBarcodeImg {
+        position: absolute;
+        left: 20px;  /* تم تغييره إلى اليسار (الشمال) */
+        right: auto; /* تم إيقاف تأثير اليمين */
+        width: 55px; 
+        height: 55px;
+    }
+    /* 3. تنسيق السطر اللي بيجمع جملة الاحترام والتاريخ */
+    .cert-closing-date-wrapper {
+        display: flex;
+        justify-content: space-between; /* توزيع الجملتين يمين وشمال */
+        align-items: center;
+        margin-top: 15px;
+        font-weight: bold;
+    }
+
+    /* 4. تنسيق التوقيعات علشان تطلع لفوق وتاخد مساحة أقل */
+    .cert-signatures-and-dates-footer {
+        margin-top: 15px;
+        border-top: 2px dashed #ccc; /* خط فاصل خفيف يلم الشكل ويفصل التوقيعات */
+        padding-top: 15px;
+    }
+    
+    .cert-signatures-columns-row {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+    }
+    
+    .cert-signature-column-item {
+        text-align: center;
+    }
+    /* إعدادات صورتين اللوجو (الكلية والوزارة) */
+.cert-college-logo, 
+.cert-ministry-logo {
+    width: 130px !important;    /* هنا بتكبر العرض زي ما إنت عايز (جربت 150px كمثال ممتاز) */
+    height: 130px !important;   /* هنا بتكبر الطول بنفس القيمة علشان الصورة متتمطش */
+    margin-top: -15px !important; /* الســـر هنــــا: المسافة بالسالب بتسحب الصورة لفوق */
+    margin-bottom: 10px !important; /* بنعمل مسافة أمان بين الصورة والكلام علشان ميتزنقوش */
+    object-fit: contain !important; /* بيحافظ على جودة الصورة بدون تشويه */
+}
+</style>
+
+<div id="printCertArea" class="cert-print-only">
+    
+    <!-- منطقة الهيدر (المعدلة بالتفصيل الممل) -->
+    <div class="cert-header-wrapper" style="display: flex; justify-content: space-between; align-items: flex-start; margin-top: 10px; width: 100%;">
+        
+        <!-- البلوك الأيمن: الشعار والنص تحته -->
+        <div class="cert-header-right-block" style="display: flex; flex-direction: column; align-items: center; text-align: center; width: 33%;">
+            <img src="images.jpg" alt="شعار الكلية التكنولوجية" class="cert-college-logo">
+            <div class="cert-header-text-lines" style="display: flex; flex-direction: column; font-size: 14px; font-weight: bold; line-height: 1.4;">
+                <span>الكلية التكنولوجية بالمطرية</span>
+                <span id="printHeaderInstName">المعهد الفنى الصناعى بالمطرية</span>
+                <span>قسم شئون الطلاب</span>
+            </div>
+        </div>
+        
+        <!-- البلوك الأوسط: الـ QR Code (لم يتغير مكانه لكن تم توسيطه بدقة) -->
+        <div class="cert-header-center-block" style="display: flex; justify-content: center; align-items: center; width: 33%;">
+            <img id="certBarcodeImg" src="images.jpg" alt="Big QR Code" style="width: 105px; height: 105px; object-fit: contain;">
+        </div>
+        
+        <!-- البلوك الأيسر: الشعار والنص الإنجليزي تحته -->
+        <div class="cert-header-left-block" style="display: flex; flex-direction: column; align-items: center; text-align: center; width: 33%;">
+           <img src="1429703721.jpg" alt="شعار الوزارة" class="cert-ministry-logo">
+            <div class="cert-header-text-lines-en" style="display: flex; flex-direction: column; font-size: 14px; font-weight: bold; line-height: 1.4;">
+                <span>Matareya Technological College</span>
+                <span id="printHeaderInstNameEng">Industrial Technical Institute</span>
+                <span>Student Affairs Department</span>
+            </div>
+        </div>
+    </div>
+
+    <hr class="cert-header-divider-line">
+
+    <div class="cert-linear-barcode-container">
+        <img id="certLinearBarcodeImg" src="https://bwipjs-api.metafloor.com/?bcid=code128&text=124112168&scale=2&includetext" alt="Linear Barcode">
+    </div>
+
+    <!-- التعديل الأول والثالث: العنوان مع الـ Qr في سطر واحد والـ Qr على الشمال -->
+    <!-- العنوان مع الـ QR الصغير على الشمال -->
+<!-- العنوان مع الـ QR الصغير على اليمين (وتم مسح اللوجو القديم) -->
+    <!-- العنوان مع الـ QR الصغير على الشمال -->
+    <div class="cert-title-qr-wrapper" style="display: flex; justify-content: center; position: relative; margin-top: -10px; margin-bottom: 5px;">
+        <div class="cert-document-main-title">اثبـــــــــات قيـــــــــد</div>
+    </div>
+
+    <div class="cert-document-body-content">
+        <div class="cert-destination-title">الى من يهمه الأمـــــــر</div>
+        <div class="cert-salutation-text">تحيه طيبة و بعد,,,,,,</div>
+        
+        <div class="cert-paragraphs-holder">
+            <p>نفيد علم سيادتكم بأن الطالب / <strong id="printBodyStuName"></strong></p>
+            <p>مقيد بالمعهد <strong id="printBodyInstName"></strong> ضمن الفرقة (<strong id="printBodyYear"></strong>) شعبة (<strong id="printBodyDept"></strong> - <strong id="printBodyStatus"></strong>) عن العام الدراسى (<strong class="cert-academic-year">2026/2025</strong>)</p>
+            <p>و قد اعطى له هذا البيان بناءً على طلبة دون ادنى مسئوليه قانونية على المعهد.</p>
+            <p>وقد سدد الرسوم بحوالة رقم (...........) بتاريخ (...........) بمبلغ (2.5 جنيها فقط لا غير)</p>
+        </div>
+        
+        <!-- التعديل الثاني: جملة الاحترام والتاريخ في سطر واحد لتوفير المساحة -->
+        <div class="cert-closing-date-wrapper" style="display: flex; flex-direction: column; align-items: center; width: 100%;">
+            <div class="cert-closing-respect-text" style="text-align: center; width: 100%; margin-bottom: 5px;">و تفضلوا بقبول فائق الاحترام</div>
+            <div class="cert-date-released-row" style="text-align: right; width: 100%;">
+                تم تحرير الوثيقة بتاريخ: <strong id="printDocDate"></strong>
+            </div>
+        </div>
+    </div>
+
+    <!-- التعديل الرابع: رفع التوقيعات لأعلى وجعلها متلاصقة لعدم كسر الصفحة -->
+   <!-- التعديل الرابع: دفع التوقيعات لأسفل الصفحة دائماً -->
+    <div class="cert-signatures-and-dates-footer" style="margin-top: auto; border-top: 2px dashed #ccc; padding-top: 15px;">
+        <div class="cert-signatures-columns-row">
+            <div class="cert-signature-column-item">
+                <span class="cert-signature-role-title">شئون الطلاب</span>
+                <div class="signature-scribble">Ahmed Yasser</div>
+            </div>
+            
+            <div class="cert-signature-column-item">
+                <span class="cert-signature-role-title">رئيس القسم</span>
+                <div class="cert-signature-blank-space"></div>
+            </div>
+            
+            <div class="cert-signature-column-item">
+                <span class="cert-signature-role-title">عميد المعهد</span>
+                <div class="cert-signature-blank-space"></div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ================= نهاية قالب طباعة إثبات القيد ================= -->
     <script src="script.js"></script>
+    
+ 
 </body>
 </html>
